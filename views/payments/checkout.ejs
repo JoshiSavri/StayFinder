@@ -1,0 +1,153 @@
+<% layout("/layouts/boilerplate") %>
+
+<style>
+.payment-card {
+  border-radius: 20px;
+  transition: 0.3s;
+}
+.payment-card:hover {
+  transform: scale(1.02);
+}
+.pay-btn {
+  background-color: #fe424d;
+  border: none;
+}
+.pay-btn:hover {
+  background-color: #e63946;
+}
+.btn-success{
+  background-color: #000000;
+  border: none;
+}
+.btn-success:hover {
+  background-color: #000000;
+}
+</style>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+
+      <div class="card shadow p-4 payment-card">
+
+        <h3 class="text-center mb-3">Secure Payment</h3>
+
+        <!--  PRICE -->
+        <p class="text-center fs-5">
+          <b>Total Amount:</b> ₹<%= booking.totalPrice %>
+        </p>
+
+        <hr>
+
+        <!-- LISTING INFO -->
+        <p><b>Property:</b> <%= booking.listing.title %></p>
+
+        <!--  OWNER PAYMENT DETAILS -->
+        <div class="mb-2">
+  <p><b>UPI ID:</b> <%= booking.listing.upiId || "Not Available" %></p>
+
+  <!-- COPY BUTTON -->
+  <!-- <button 
+    class="btn pay-btn w-100 text-white"
+    onclick="copyUPI()"
+  >
+    Copy UPI
+  </button> -->
+  <button 
+  class="btn pay-btn btn-sm text-white px-3 py-1"
+  onclick="copyUPI()"
+>
+  Copy UPI
+</button>
+
+  <span id="copyMsg" class="text-success ms-2"></span>
+</div>
+        <p><b>Phone:</b> <%= booking.listing.phone || "Not Available" %></p>
+
+        <hr>
+
+        <!-- QR CODE (REAL UPI QR) -->
+        <div class="text-center mb-3">
+          <img 
+            src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=<%= booking.listing.upiId %>&pn=StayFinder&am=<%= booking.totalPrice %>" 
+            class="img-fluid rounded"
+          >
+          <p class="mt-2 text-muted">Scan & Pay via UPI</p>
+        </div>
+
+        <hr>
+<!-- <button id="pay-btn" class="btn pay-btn pay-btn-small w-100 text-white">
+  Pay Now
+</button> -->
+<button id="pay-btn" class="btn pay-btn btn-sm text-white px-3 py-1">
+    Pay Now
+  </button>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+document.getElementById("pay-btn").onclick = async function () {
+
+  
+  const res = await fetch("/payments/create-order/<%= booking._id %>", {
+    method: "POST"
+  });
+
+  const data = await res.json();
+
+ 
+  const options = {
+    key: data.key,
+    amount: data.amount,
+    currency: "INR",
+    name: "StayFinder",
+    description: "Booking Payment",
+    order_id: data.orderId,
+
+    handler: async function (response) {
+
+     
+      await fetch(`/payments/${data.bookingId}/success`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          paymentId: response.razorpay_payment_id
+        })
+      });
+
+
+      window.location.href = `/payments/${data.bookingId}/success`;
+    },
+
+    modal: {
+      ondismiss: function () {
+        alert("Payment cancelled ");
+      }
+    },
+
+    theme: {
+      color: "#fe424d"
+    }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.open();
+};
+</script>
+  
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+function copyUPI() {
+  const upi = "<%= booking.listing.upiId %>";
+
+  navigator.clipboard.writeText(upi);
+
+  document.getElementById("copyMsg").innerText = "Copied!";
+}
+</script>

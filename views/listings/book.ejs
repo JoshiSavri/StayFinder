@@ -1,0 +1,102 @@
+<% layout("/layouts/boilerplate") %>
+
+<style>
+body {
+  background-color: #f7f7f7;
+  font-family: Arial, sans-serif;
+}
+
+.booking-card {
+  border-radius: 16px;
+  border: none;
+  transition: 0.3s;
+}
+
+.booking-card:hover {
+  transform: scale(1.01);
+}
+
+/* Image */
+.listing-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* Price */
+.price {
+  color: #000000;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Button */
+.book-btn {
+  background-color: #fe424d;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  color: white;
+  transition: 0.3s;
+}
+
+.book-btn:hover {
+  background-color: #e63946;
+}
+
+/* Input */
+input {
+  border-radius: 8px;
+  padding: 8px;
+}
+
+/* Labels */
+label {
+  font-weight: 500;
+  margin-top: 10px;
+}
+</style>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+
+      <div class="card shadow p-4 booking-card">
+
+        <h3 class="mb-3 text-center">Book This Stay</h3>
+
+        <!-- IMAGE -->
+        <img src="<%= listing.image.url %>" class="listing-img mb-3">
+
+        <!-- TITLE -->
+        <h5><%= listing.title %></h5>
+
+        <!-- PRICE -->
+        <p class="price">₹<%= listing.price %> / night</p>
+
+        <hr>
+
+  <form action="/bookings/<%= listing._id %>" method="POST">
+
+  <label>Check-in</label>
+  <input type="date" name="checkIn" class="form-control" required>
+
+  <label>Check-out</label>
+  <input type="date" name="checkOut" class="form-control" required>
+
+  <button 
+  type="submit" 
+  class="btn btn-sm book-btn px-4 py-1 mt-3"
+  style="margin-left: 50%; transform: translateX(-50%);"
+>
+  Reserve & Pay
+</button>
+
+</form>
+
+      </div>
+
+    </div>
+  </div>
+</div>
